@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 60
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 60
+      terminationGracePeriodSeconds: 0                # 异常立即删除
+      containers:
+      - name: keycloak
+        image: jboss/keycloak:6.0.0
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KEYCLOAK_USER
+          value: admin
+        - name: KEYCLOAK_PASSWORD
+          value: r00tme
+        - name: DB_VENDOR
+          value: postgres
+        - name: DB_ADDR
+          value: postgres-0.postgres.postgres   #postgres的地址
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_DATABASE
+          value: keycloak
+        - name: DB_USER
+          value: postgres                      #账号
+        - name: DB_PASSWORD                    #密码
+          value: r00tme
+        - name: TZ
+          value: Asia/Shanghai
+        volumeMounts:
+        - name: tz
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz
+        hostPath:
+          path: /etc/localtime

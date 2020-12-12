@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: system
+  labels:
+    app: keycloak
+spec:
+  externalIPs:
+  - 192.168.1.146     #填上你宿主机的IP
+  selector:
+    app: keycloak
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
